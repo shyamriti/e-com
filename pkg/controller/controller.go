@@ -5,10 +5,9 @@ import (
 	"e-com/pkg/database"
 	"e-com/pkg/models"
 	"fmt"
-	"log"
-
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"log"
 )
 
 var Item models.Item
@@ -33,10 +32,6 @@ type LoginPayload struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
-
-// type LoginResponse struct {
-// 	Token string `json:"token"`
-// }
 
 func LogIn(c *gin.Context) {
 	var payload LoginPayload
@@ -79,11 +74,6 @@ func LogIn(c *gin.Context) {
 		c.Abort()
 		return
 	}
-
-	// tokenResponse := LoginResponse{
-	// 	Token: signedToken,
-	// }
-
 	cookie, err := c.Cookie("user")
 	if err != nil {
 		c.SetCookie("user", signedToken, 3600, "/", "127.0.0.1", false, true)
