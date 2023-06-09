@@ -4,7 +4,7 @@ import (
 	"e-com/pkg/auth"
 	"e-com/pkg/database"
 	"e-com/pkg/models"
-	"fmt"
+	"e-com/pkg/request"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"log"
@@ -17,29 +17,24 @@ func SignUp(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
+		log.Println(err)
 	}
 	err = user.HashPassword(user.Password)
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
+		log.Println(err)
 	}
 	database.Db.Create(&user)
 	c.JSON(200, user)
 
 }
 
-type LoginPayload struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 func LogIn(c *gin.Context) {
-	var payload LoginPayload
+	var payload request.LoginPayload
 	var user models.User
 
 	err := c.ShouldBind(&payload)
 	if err != nil {
-		fmt.Printf("err1: %v\n", err)
+		log.Println(err)
 	}
 	result := database.Db.Where("email=?", payload.Email).Select("*").First(&user)
 	if result.Error == gorm.ErrRecordNotFound {
@@ -67,7 +62,7 @@ func LogIn(c *gin.Context) {
 
 	signedToken, err := jwtWrapper.GenerateToken(user.Email)
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
 		c.JSON(500, gin.H{
 			"msg": "error signing token",
 		})
@@ -96,7 +91,7 @@ func LogOut(c *gin.Context) {
 
 func AddItem(c *gin.Context) {
 	if err := c.BindJSON(&Item); err != nil {
-		fmt.Printf("err: %v\n", err)
+		log.Fatal(err)
 	}
 	database.Db.Create(&Item)
 	c.JSON(200, Item)
@@ -105,7 +100,7 @@ func AddItem(c *gin.Context) {
 func GetItem(c *gin.Context) {
 	err := database.Db.Where("name= ?", c.Param("name")).First(&Item)
 	if err != nil {
-		fmt.Println("Item not found")
+		log.Fatal(err)
 	}
 	c.JSON(200, Item)
 }
@@ -114,7 +109,7 @@ func GetItems(c *gin.Context) {
 	var item []models.Item
 	resp := database.Db.Find(&item)
 	if resp.Error != nil {
-		fmt.Printf("resp.Error: %v\n", resp.Error)
+		log.Fatal(resp.Error)
 	}
 	c.JSON(200, item)
 }
