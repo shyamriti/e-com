@@ -1,30 +1,31 @@
 package models
 
 import (
-	"golang.org/x/crypto/bcrypt"
 	"log"
+
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type Item struct {
-	ProductName string  `json:"productname"`
-	Price       int     `json:"price"`
-	Description string  `json:"description"`
-	Rating      float32 `json:"rating"`
+	gorm.Model
+	ProductName string  `json:"product_name"`
+	Price       float64 `json:"price"`
+}
+
+type Cart struct {
+	gorm.Model
+	ItemID uint
+	Item   []Item `json:"item" gorm:"foreignKey:ID;association_foreignkey:ItemID"`
 }
 
 type User struct {
-	UserId   int    `json:"userid" gorm:"primary key"`
-	UserName string `json:"username"`
-	Email    string `json:"email" gorm:"unique"`
-	PhoneNo  string `json:"phoneno"`
-	Password string `json:"password"`
-}
-
-type Order struct {
-	User          []User `json:"user" gorm:"foreign key:UserId"`
-	OredeId       int    `json:"orderid"`
-	ProductDetail []Item `json:"productdetail"`
-	Quqantity     int    `json:"quantity"`
+	gorm.Model
+	UserName     string `json:"user_name"`
+	Email        string `json:"email" gorm:"unique"`
+	PhoneNo      string `json:"phone_no"`
+	Password     string `json:"password"`
+	IsAmbassador bool   `json:"is_ambassador"`
 }
 
 func (user *User) HashPassword(password string) error {

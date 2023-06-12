@@ -11,8 +11,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var Item models.Item
-
 func SignUp(c *gin.Context) {
 	var user models.User
 
@@ -88,34 +86,4 @@ func LogOut(c *gin.Context) {
 	} else {
 		c.JSON(200, gin.H{"msg": cookie})
 	}
-}
-
-func AddItem(c *gin.Context) {
-	if err := c.BindJSON(&Item); err != nil {
-		log.Fatal(err)
-	}
-	database.Db.Create(&Item)
-	c.JSON(200, Item)
-}
-
-func GetItem(c *gin.Context) {
-	err := database.Db.Where("name= ?", c.Param("name")).First(&Item)
-	if err != nil {
-		log.Fatal(err)
-	}
-	c.JSON(200, Item)
-}
-
-func GetItems(c *gin.Context) {
-	var item []models.Item
-	resp := database.Db.Find(&item)
-	if resp.Error != nil {
-		log.Fatal(resp.Error)
-	}
-	c.JSON(200, item)
-}
-func DeleteItem(c *gin.Context) {
-	name := c.Param("name")
-	database.Db.Where("name= ?", name).Delete(&Item)
-	c.JSON(200, "data deleted")
 }

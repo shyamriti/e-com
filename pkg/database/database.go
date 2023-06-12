@@ -3,6 +3,7 @@ package database
 import (
 	"e-com/pkg/models"
 	"fmt"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -11,11 +12,14 @@ var Db *gorm.DB
 
 func Connection() {
 	var err error
-	Db, err = gorm.Open(sqlite.Open("sqlite-database.db"), &gorm.Config{})
+	Db, err = gorm.Open(sqlite.Open("new.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to database conncetion")
 	}
 	fmt.Println("Database connected successfully")
-	Db.AutoMigrate(&models.Item{}, &models.Order{}, &models.User{})
+	Db.Debug().AutoMigrate(&models.Item{}, &models.User{}, &models.Cart{})
+	// Db.AutoMigrate(&models.Order{})
+	// Db.AutoMigrate(&models.User{})
+
 	fmt.Println("Database migrated")
 }

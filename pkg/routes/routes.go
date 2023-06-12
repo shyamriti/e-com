@@ -8,13 +8,25 @@ import (
 
 func Routers() *gin.Engine {
 	r := gin.Default()
-	r.POST("/user/signup", controller.SignUp)
-	r.POST("/user/login", controller.LogIn)
-	r.POST("/user/logout", controller.LogOut)
-	r.POST("/item", controller.AddItem)
-	r.GET("/item", controller.GetItems)
-	r.GET("/item/:name", controller.GetItem)
-	r.DELETE("/item/:name", controller.DeleteItem)
+	admin := r.Group("/admin")
+	admin.POST("/signup", controller.SignUp)
+	admin.POST("/login", controller.LogIn)
+	admin.POST("/logout", controller.LogOut)
+	admin.POST("/additem", controller.AddItem)
+	admin.GET("/getitems", controller.GetItems)
+	admin.GET("/search/:name", controller.SearchItem)
+	admin.DELETE("/deleteitem/:name", controller.DeleteItem)
+
+	user := r.Group("/user")
+	user.POST("/signup", controller.SignUp)
+	user.POST("/login", controller.LogIn)
+	user.POST("/logout", controller.LogOut)
+	user.GET("/getitems", controller.GetItems)
+	user.GET("/search/:name", controller.SearchItem)
+	user.GET("/info", controller.UserInfo)
+	user.GET("/get", controller.GetUser)
+	user.POST("/addcart", controller.AddCart)
+
 	return r
 
 }
