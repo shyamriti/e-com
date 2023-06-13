@@ -1,1 +1,1 @@
-e-com service with jwt authentication
+ecommarce service with jwt authentication

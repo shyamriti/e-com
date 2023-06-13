@@ -6,6 +6,7 @@ import (
 	"e-com/pkg/models"
 	"e-com/pkg/request"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -33,7 +34,8 @@ func LogIn(c *gin.Context) {
 
 	err := c.ShouldBind(&payload)
 	if err != nil {
-		log.Println(err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, "binding failed")
+		return
 	}
 	result := database.Db.Where("email=?", payload.Email).Select("*").First(&user)
 	if result.Error == gorm.ErrRecordNotFound {
@@ -54,9 +56,9 @@ func LogIn(c *gin.Context) {
 	}
 
 	jwtWrapper := auth.JwtWrapper{
-		SecretKey:       "verysecretkey",
-		Issuer:          "AuthService",
-		ExpirationHours: 24,
+		SecretKey:        "secret",
+		Issuer:           "AuthService",
+		ExpirationMinute: 1,
 	}
 
 	signedToken, err := jwtWrapper.GenerateToken(user.Email)
@@ -68,22 +70,33 @@ func LogIn(c *gin.Context) {
 		c.Abort()
 		return
 	}
+	// token, err := jwtWrapper.ValidateToken(signedToken)
+	// if err != nil {
+	// 	c.AbortWithStatusJSON(http.StatusBadRequest, err)
+	// }
+	c.SetCookie("user", signedToken, 3600, "/", "localhost", false, true)
+
 	cookie, err := c.Cookie("user")
 	if err != nil {
-		c.SetCookie("user", signedToken, 3600, "/", "127.0.0.1", false, true)
-		c.JSON(200, gin.H{"msg": "cookie set successfully"})
-	} else {
-		c.JSON(200, gin.H{"msg": cookie})
+		c.AbortWithStatusJSON(http.StatusBadRequest, "cookie not set")
+		return
 	}
+	c.JSON(200, cookie)
 
 }
 
 func LogOut(c *gin.Context) {
+	c.SetCookie("user", "", -1, "/", "localhost", false, true)
+
 	cookie, err := c.Cookie("user")
 	if err != nil {
-		c.SetCookie("user", "", -1, "/", "127.0.0.1", false, true)
-		c.JSON(200, gin.H{"msg": "logout successfully"})
-	} else {
-		c.JSON(200, gin.H{"msg": cookie})
+		c.AbortWithStatusJSON(http.StatusBadRequest, "log out abort")
+		return
 	}
+	if cookie != "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, "cookies not nil")
+		return
+
+	}
+	c.JSON(200, "log out successfully")
 }

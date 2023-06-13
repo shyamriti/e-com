@@ -2,6 +2,7 @@ package routes
 
 import (
 	"e-com/pkg/controller"
+	"e-com/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,12 +21,15 @@ func Routers() *gin.Engine {
 	user := r.Group("/user")
 	user.POST("/signup", controller.SignUp)
 	user.POST("/login", controller.LogIn)
-	user.POST("/logout", controller.LogOut)
-	user.GET("/getitems", controller.GetItems)
-	user.GET("/search/:name", controller.SearchItem)
-	user.GET("/info", controller.UserInfo)
-	user.GET("/get", controller.GetUser)
-	user.POST("/addcart", controller.AddCart)
+
+	users := user.Use(middleware.IsAuthorized)
+
+	users.POST("/logout", controller.LogOut)
+	users.GET("/getitems", controller.GetItems)
+	users.GET("/search/:name", controller.SearchItem)
+	users.GET("/info", controller.UserInfo)
+	users.GET("/get", controller.GetUser)
+	users.POST("/addcart", controller.AddCart)
 
 	return r
 

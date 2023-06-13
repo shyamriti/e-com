@@ -18,8 +18,6 @@ func Connection() {
 	}
 	fmt.Println("Database connected successfully")
 	Db.Debug().AutoMigrate(&models.Item{}, &models.User{}, &models.Cart{})
-	// Db.AutoMigrate(&models.Order{})
-	// Db.AutoMigrate(&models.User{})
 
 	fmt.Println("Database migrated")
 }
