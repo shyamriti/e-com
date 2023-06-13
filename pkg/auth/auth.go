@@ -9,9 +9,9 @@ import (
 )
 
 type JwtWrapper struct {
-	SecretKey       string
-	Issuer          string
-	ExpirationHours int64
+	SecretKey        string
+	Issuer           string
+	ExpirationMinute int64
 }
 
 type JwtClaim struct {
@@ -23,11 +23,12 @@ func (j *JwtWrapper) GenerateToken(email string) (signedToken string, err error)
 	claims := &JwtClaim{
 		Email: email,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(j.ExpirationHours)).Unix(),
+			ExpiresAt: time.Now().Local().Add(time.Minute * time.Duration(j.ExpirationMinute)).Unix(),
 			Issuer:    j.Issuer,
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
 	signedToken, err = token.SignedString([]byte(j.SecretKey))
 	if err != nil {
 		return
